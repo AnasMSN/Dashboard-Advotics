@@ -2,34 +2,88 @@
     <div class="container">
          <!-- Side navigation -->
          <span class="row">
-            <h1 class="col-5">Dashboard</h1>
-            <div class="col-7 bg-white mb-2 mt-1 shadow-sm bg-white">
-                <a v-b-toggle.collapse-1>
+            <h1 class="col-4">Dashboard</h1>
+            <div class="col-8 bg-white mb-2 mt-1 shadow-sm bg-white" @click="openCollapse" v-click-outside="closeCollapse">
+                <a>
                     <div class="row" style="height:50px" >
-                        <div class="col-4 align-self-center">
+                        <div class="col-3 align-self-center">
                             <p class="col small-text my-auto"><img alt="calendar"  
-                                height="20px" src="@/assets/calendar.png" class="mr-2">  Period</p>
+                                height="20px" src="@/assets/calendar.png" class="mr-2">Period</p>
                         </div>
-                        <div class="col-8 align-self-center">
-                            <p class="my-auto small-text"> 11 September 2018 - 14 September 2018  <i class="fa fa-angle-down ml-1"></i></p>
-                            
+                        <div class="col-9 align-self-center">
+                            <p class="my-auto small-text float-right"> 11 September 2018 - 14 September 2018  <i class="fa fa-angle-down ml-1"></i></p>
+                            <a @click="closeCollapse"><i class="fa fa-times float-right" aria-hidden="true"></i></a>
                         </div>
                         
                     </div>
                 </a>
 
-                <b-collapse id="collapse-1">
-                    <div class="row">
-                        <div class="col-2">
-                        tes
+                <b-collapse id="collapse-1" :visible="visibility" ref="collapseb">
+                    <div class="row mb-3 mt-3">
+                        <div class="col-3">
+                            <div 
+                                class="col-12 calendar-button m-auto" 
+                                @click="onDay('today')"
+                                :class="stateButton == 'today'? 'text-success font-weight-bold':''"
+                            >
+                                Today
+                            </div>
+                            <div 
+                                class="col-12 calendar-button m-auto" 
+                                @click="onDay('yesterday')"
+                                :class="stateButton == 'yesterday'? 'text-success font-weight-bold':''"
+                            >
+                                Yesterday
+                            </div>
+                            <div 
+                                class="col-12 calendar-button m-auto" 
+                                @click="onDay('last7')"
+                                :class="stateButton == 'last7'? 'text-success font-weight-bold':''"
+                            >
+                                Last 7 days
+                            </div>
+                            <div 
+                                class="col-12 calendar-button m-auto" 
+                                @click="onDay('last30')"
+                                :class="stateButton == 'last30'? 'text-success font-weight-bold':''"
+                            >
+                                Last 30 days
+                            </div>
+                            <div 
+                                class="col-12 calendar-button m-auto" 
+                                @click="onDay('month')"
+                                :class="stateButton == 'month'? 'text-success font-weight-bold':''"
+                            >
+                                This Month
+                            </div>
+                            <div 
+                                class="col-12 custom-button m-auto"
+                            >
+                                Custom
+                            </div>
+                            <button @click="submitSelectedDate">apply</button>
                         
                         </div>
-                        <div class="col-5">
-                        <b-calendar v-model="value" @context="onContext" width="150px" locale="en-US"></b-calendar>
+                        <div class="col">
+                            <v-date-picker
+                                mode="multiple"   
+                                v-model='selectedDate'
+                                :max-date="new Date(new Date().setDate(new Date().getDate()-1))"
+                                color="green"
+                                show-caps
+                                is-inline>
+                            </v-date-picker>
                         
                         </div>
-                        <div class="col-5">
-                        <b-calendar v-model="value" @context="onContext" width="150px" locale="en-US"></b-calendar>
+                        <div class="col">
+                            <v-date-picker
+                                mode="multiple"
+                                v-model='selectedDate'
+                                :max-date="new Date(new Date().setDate(new Date().getDate()-1))"
+                                color="green"
+                                show-caps
+                                is-inline>
+                            </v-date-picker>
                         
                         </div>
                     </div>
@@ -119,6 +173,7 @@
 <script>
 import Chart from '@/components/Chart.vue'
 import Objectcard from '@/components/Objectcard.vue'
+import ClickOutside from 'vue-click-outside'
 
 export default {
   name: 'Content',
@@ -144,12 +199,85 @@ export default {
             },
             value: '',
             context: null,
-
+            attributes: [
+                {
+                    key: 'today',
+                    highlight: true,
+                    dates: new Date()
+                }
+            ],
+            selectedDate: null,
+            visibility: false,
+            oldSelectedDate: null,
+            stateButton: null,
       }
+  },
+  directives: {
+    ClickOutside
   },
   methods: {
         onContext(ctx) {
             this.context = ctx
+        },
+        closeCollapse() {
+            if (this.$refs.collapseb.show == true){
+                this.selectedDate = this.oldSelectedDate
+                this.$refs.collapseb.show = false
+            }
+            
+        },
+        openCollapse() {
+            if (this.$refs.collapseb.show == false){
+                this.$refs.collapseb.show = true
+            }
+        },
+        submitSelectedDate() {
+            this.oldSelectedDate = this.selectedDate
+            this.$root.$emit('bv::toggle::collapse', 'collapse-1')
+
+        },
+        onDay(value) {
+            var moment = require('moment'); // require
+            moment().format(); 
+            if (value == "today"){
+                this.stateButton = 'today'
+                this.selectedDate = [
+                    new Date(),
+                ]
+            }
+            else if (value == "yesterday"){
+                this.stateButton = 'yesterday'
+                this.selectedDate = [
+                    new Date(new Date().setDate(new Date().getDate()-1)),
+                ]
+            }
+            else if (value == "last7"){
+                this.stateButton = 'last7'
+                this.selectedDate = [
+                    {
+                        start: moment().subtract(1, 'days').toDate(),
+                        end: moment().subtract(7, 'days').toDate()
+                    },
+                ]
+            }
+            else if (value == "last30"){
+                this.stateButton = 'last30'
+                this.selectedDate = [
+                    {
+                        start: moment().subtract(1, 'days').toDate(),
+                        end: moment().subtract(30, 'days').toDate()
+                    },
+                ]
+            }
+            else if (value == "month"){
+                this.stateButton = 'month'
+                this.selectedDate = [
+                    {
+                        start: moment().startOf('month').toDate(),
+                        end: moment().endOf('month').toDate()
+                    },
+                ]
+            }
         }
     }
 }
@@ -161,4 +289,23 @@ export default {
     font-size: 14px;
 }
 
+.calendar-button {
+    font-size: 12px;
+    padding-top: 3px;
+    padding-bottom: 7px;
+    border-bottom-style: solid;
+    border-width: 1px;
+    cursor: pointer;
+    height: 50px;
+
+}
+
+.custom-button {
+    font-size: 12px;
+    padding-top: 3px;
+    padding-bottom: 7px;
+    cursor: pointer;
+    height: 50px;
+
+}
 </style>
