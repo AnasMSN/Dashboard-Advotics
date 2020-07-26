@@ -3,16 +3,16 @@
          <!-- Side navigation -->
          <span class="row">
             <h1 class="col-4">Dashboard</h1>
-            <div class="col-8 bg-white mb-2 mt-1 shadow-sm bg-white" @click="openCollapse" v-click-outside="closeCollapse">
-                <a>
+            <div class="col-8 bg-white mb-2 mt-1 shadow-sm bg-white" v-click-outside="closeCollapse">
+                <a @click="openCollapse">
                     <div class="row" style="height:50px" >
                         <div class="col-3 align-self-center">
                             <p class="col small-text my-auto"><img alt="calendar"  
                                 height="20px" src="@/assets/calendar.png" class="mr-2">Period</p>
                         </div>
-                        <div class="col-9 align-self-center">
-                            <p class="my-auto small-text float-right"> 11 September 2018 - 14 September 2018  <i class="fa fa-angle-down ml-1"></i></p>
-                            <a @click="closeCollapse"><i class="fa fa-times float-right" aria-hidden="true"></i></a>
+                        <div class="col-9 align-self-center" v-b-toggle.collapse-1>
+                            <p class="when-closed my-auto small-text float-right"> {{ date_value_shown }} <i class="fa fa-angle-down ml-1"></i></p>
+                            <a class="when-opened" @click="closeCollapse"><i class="fa fa-times float-right" aria-hidden="true"></i></a>
                         </div>
                         
                     </div>
@@ -58,10 +58,12 @@
                             </div>
                             <div 
                                 class="col-12 custom-button m-auto"
+                                @click="onDay('custom')"
+                                :class="stateButton == 'custom'? 'text-success font-weight-bold':''"
                             >
                                 Custom
                             </div>
-                            <button @click="submitSelectedDate">apply</button>
+                            <b-button class="btn-success" @click="submitSelectedDate">apply</b-button>
                         
                         </div>
                         <div class="col">
@@ -149,6 +151,11 @@
                         <img alt="triple_dot" height="25px" src="@/assets/triple_dot.svg">
                     </div>
                     <objectcard />
+                    <objectcard />
+                    <objectcard />
+                    <objectcard />
+                    <objectcard />
+                    <objectcard />
                 </div>
             </div>
             
@@ -159,6 +166,10 @@
                         <h5 class="col-11 card-title text-dark">TOP COMPETITOR SKU</h5>
                         <img alt="triple_dot" height="25px" src="@/assets/triple_dot.svg">
                     </div>
+                    <objectcard />
+                    <objectcard />
+                    <objectcard />
+                    <objectcard />
                     <objectcard />
                 </div>
             </div>
@@ -174,6 +185,7 @@
 import Chart from '@/components/Chart.vue'
 import Objectcard from '@/components/Objectcard.vue'
 import ClickOutside from 'vue-click-outside'
+import moment from 'moment';
 
 export default {
   name: 'Content',
@@ -206,10 +218,22 @@ export default {
                     dates: new Date()
                 }
             ],
-            selectedDate: null,
+            selectedDate: [
+                    {
+                        start: moment().subtract(1, 'days').toDate(),
+                        end: moment().subtract(7, 'days').toDate()
+                    },
+                ],
             visibility: false,
-            oldSelectedDate: null,
-            stateButton: null,
+            oldSelectedDate: [
+                    {
+                        start: moment().subtract(1, 'days').toDate(),
+                        end: moment().subtract(7, 'days').toDate()
+                    },
+                ],
+            stateButton: 'last7',
+            new_date_value_shown : null,
+            date_value_shown : moment().subtract(7, 'days').format('MMMM Do YYYY') + " - " + moment().subtract(1, 'days').format('MMMM Do YYYY')
       }
   },
   directives: {
@@ -233,7 +257,8 @@ export default {
         },
         submitSelectedDate() {
             this.oldSelectedDate = this.selectedDate
-            this.$root.$emit('bv::toggle::collapse', 'collapse-1')
+            this.date_value_shown = this.new_date_value_shown
+            this.$refs.collapseb.show = false
 
         },
         onDay(value) {
@@ -244,12 +269,14 @@ export default {
                 this.selectedDate = [
                     new Date(),
                 ]
+                this.new_date_value_shown = moment().format('MMMM Do YYYY')
             }
             else if (value == "yesterday"){
                 this.stateButton = 'yesterday'
                 this.selectedDate = [
                     new Date(new Date().setDate(new Date().getDate()-1)),
                 ]
+                this.new_date_value_shown = moment().subtract(1, 'days').format('MMMM Do YYYY')
             }
             else if (value == "last7"){
                 this.stateButton = 'last7'
@@ -259,6 +286,7 @@ export default {
                         end: moment().subtract(7, 'days').toDate()
                     },
                 ]
+                this.new_date_value_shown = moment().subtract(7, 'days').format('MMMM Do YYYY') + " - " + moment().subtract(1, 'days').format('MMMM Do YYYY')
             }
             else if (value == "last30"){
                 this.stateButton = 'last30'
@@ -268,6 +296,7 @@ export default {
                         end: moment().subtract(30, 'days').toDate()
                     },
                 ]
+                this.new_date_value_shown = moment().subtract(30, 'days').format('MMMM Do YYYY') + " - " + moment().subtract(1, 'days').format('MMMM Do YYYY')
             }
             else if (value == "month"){
                 this.stateButton = 'month'
@@ -277,6 +306,12 @@ export default {
                         end: moment().endOf('month').toDate()
                     },
                 ]
+                this.new_date_value_shown = moment().startOf('month').format('MMMM Do YYYY') + " - " + moment().endOf('month').format('MMMM Do YYYY')
+            }
+            else if (value == "custom"){
+                this.stateButton = 'custom'
+                this.selectedDate = null
+                this.new_date_value_shown = "Customize Date"
             }
         }
     }
@@ -308,4 +343,9 @@ export default {
     height: 50px;
 
 }
+
+.collapsed > .when-opened,
+    :not(.collapsed) > .when-closed {
+        display: none;
+    }
 </style>

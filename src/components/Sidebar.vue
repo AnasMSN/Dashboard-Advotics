@@ -2,8 +2,8 @@
     <div>
          <!-- Side navigation -->
         <div class="sidenav">
-            <a href="#">A</a>
-            <a href="#">S</a>
+            <a class="m-auto" href="#"><img alt="dash" height="25px" src="@/assets/dash.png"></a>
+            <a class="ml-2" href="#statistics"><img alt="statistics" height="25px" src="@/assets/statstics.svg"></a>
         </div>
     </div>
   

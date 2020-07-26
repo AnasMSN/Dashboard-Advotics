@@ -9,21 +9,22 @@
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
 
-            <b-nav-item-dropdown text="Profile" right>
-            <b-dropdown-item href="#">EN</b-dropdown-item>
-            <b-dropdown-item href="#">ES</b-dropdown-item>
-            <b-dropdown-item href="#">RU</b-dropdown-item>
-            <b-dropdown-item href="#">FA</b-dropdown-item>
-            </b-nav-item-dropdown>
+            <b-nav-item class="h-100 mr-4" style="width:200px" right>
+                <div class="row h-100">
+                    <div class="col-8 float-right">
+                        <div class="float-right" style="font-size:14px">Username</div>
+                        <div class="float-right" style="font-size:10px">Company Name</div>
+                    </div>
+                    <div class="col">
+                        <img class="align-self-center" alt="profile" height="30px" src="@/assets/profile.svg">
+                    </div>
+                    
+                    
+                </div>
+            </b-nav-item>
 
-            <b-nav-item-dropdown right>
-            <!-- Using 'button-content' slot -->
-            <template v-slot:button-content>
-                <em>Logout</em>
-            </template>
-            <b-dropdown-item href="#">Profile</b-dropdown-item>
-            <b-dropdown-item href="#">Sign Out</b-dropdown-item>
-            </b-nav-item-dropdown>
+            <b-nav-item class="h-100" right ><img class="align-self-center" alt="logout" height="25px" src="@/assets/logout@2x.png"></b-nav-item>
+
         </b-navbar-nav>
         </b-collapse>
     </b-navbar>
